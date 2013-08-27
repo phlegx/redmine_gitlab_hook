@@ -1,0 +1,7 @@
+# English strings go here
+# Example:
+# my_label: "My label"
+de:
+  git_pull_type: Git pull Typ
+  all_branches: alle Branches
+

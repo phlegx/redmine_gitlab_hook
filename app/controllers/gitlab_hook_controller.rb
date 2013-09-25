@@ -7,7 +7,7 @@ class GitlabHookController < ActionController::Base
 
   def index
     if request.post?
-      repository = find_repositories
+      repositories = find_repositories
 
       repositories.each do |repository|
         # Fetch the changes from GitLab

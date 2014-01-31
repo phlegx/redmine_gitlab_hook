@@ -4,6 +4,7 @@ class GitlabHookController < ActionController::Base
 
   GIT_BIN = Redmine::Configuration['scm_git_command'] || "git"
   skip_before_filter :verify_authenticity_token, :check_if_login_required
+  before_filter :check_enabled
 
   def index
     if request.post?
@@ -98,6 +99,16 @@ class GitlabHookController < ActionController::Base
     end
 
     return repositories
+  end
+
+  protected
+
+  def check_enabled
+    User.current = nil
+    unless Setting.sys_api_enabled? && params[:key].to_s == Setting.sys_api_key
+      render :text => 'Access denied. Repository management WS is disabled or key is invalid.', :status => 403
+      return false
+    end
   end
 
 end

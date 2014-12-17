@@ -1,7 +1,14 @@
 <fieldset>
     <legend><%= l(:git_pull_type) %></legend>
     <p>
-        <%= content_tag(:label, l(:all_branches)) %>
-        <%= check_box_tag("settings[all_branches]", "yes", Setting.plugin_redmine_gitlab_hook[:all_branches] == "yes" ) %>
+        <%= content_tag(:label, l('all_branches.label')) %>
+        <%= check_box_tag('settings[all_branches]', 'yes', settings['all_branches'] == 'yes' ) %>
+        <em class="info"><%= l('all_branches.description') %></em>
+    </p>
+
+    <p>
+       	<%= content_tag(:label, l('prune.label')) %>
+        <%= check_box_tag('settings[prune]', 'yes', settings['prune'] == 'yes' ) %>
+        <em class="info"><%= l('prune.description') %></em>
     </p>
 </fieldset>

@@ -77,7 +77,7 @@ class GitlabHookController < ActionController::Base
       command = git_command("fetch --all#{prune}", repository)
       exec(command)
     else
-      command = git_command("fetch#{origin} origin", repository)
+      command = git_command("fetch#{prune} origin", repository)
       if exec(command) 
         command = git_command("fetch#{prune} origin '+refs/heads/*:refs/heads/*'", repository)
         exec(command)

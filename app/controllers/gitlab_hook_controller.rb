@@ -10,7 +10,7 @@ class GitlabHookController < ActionController::Base
     if request.post?
       repositories = find_repositories
       if repositories.empty?
-        render(text: 'No repository configured!', status: :not_found)
+        render(:text => 'No repository configured!', :status => :not_found)
       else
         errors = []
         repositories.each do |repository|
@@ -24,14 +24,14 @@ class GitlabHookController < ActionController::Base
           end
         end
         if errors.empty?
-          render(text: 'OK', status: :ok)
+          render(:text => 'OK', :status => :ok)
         else
-          render(text: "Git command failed on repository: #{errors.join(', ')}!", status: :not_acceptable)
+          render(:text => "Git command failed on repository: #{errors.join(', ')}!", :status => :not_acceptable)
         end
       end
     else
       raise ActionController::RoutingError.new('Not Found')
-    end    
+    end
   end
 
 
@@ -78,7 +78,7 @@ class GitlabHookController < ActionController::Base
       exec(command)
     else
       command = git_command("fetch#{prune} origin", repository)
-      if exec(command) 
+      if exec(command)
         command = git_command("fetch#{prune} origin '+refs/heads/*:refs/heads/*'", repository)
         exec(command)
       end

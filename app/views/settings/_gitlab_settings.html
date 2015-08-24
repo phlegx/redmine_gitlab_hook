@@ -11,4 +11,10 @@
         <%= check_box_tag('settings[prune]', 'yes', settings['prune'] == 'yes' ) %>
         <em class="info"><%= l('prune.description') %></em>
     </p>
+
+    <p>
+        <%= content_tag(:label, l('git_command_prefix.label')) %>
+        <%= text_field_tag('settings[git_command_prefix]', settings['git_command_prefix'], :size => 50) %>
+        <em class="info"><%= l('git_command_prefix.description') %></em>
+    </p>
 </fieldset>

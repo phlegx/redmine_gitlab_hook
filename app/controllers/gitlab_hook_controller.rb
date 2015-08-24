@@ -65,21 +65,23 @@ class GitlabHookController < ActionController::Base
   end
 
 
-  def git_command(command, repository)
-    GIT_BIN + " --git-dir='#{repository.url}' #{command}"
+  def git_command(prefix, command, repository)
+    "#{prefix} " + GIT_BIN + " --git-dir='#{repository.url}' #{command}"
   end
 
 
   # Fetches updates from the remote repository
   def update_repository(repository)
     Setting.plugin_redmine_gitlab_hook['prune'] == 'yes' ? prune = ' -p' : prune = ''
+    prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
+
     if Setting.plugin_redmine_gitlab_hook['all_branches'] == 'yes'
-      command = git_command("fetch --all#{prune}", repository)
+      command = git_command(prefix, "fetch --all#{prune}", repository)
       exec(command)
     else
-      command = git_command("fetch#{prune} origin", repository)
+      command = git_command(prefix, "fetch#{prune} origin", repository)
       if exec(command)
-        command = git_command("fetch#{prune} origin '+refs/heads/*:refs/heads/*'", repository)
+        command = git_command(prefix, "fetch#{prune} origin '+refs/heads/*:refs/heads/*'", repository)
         exec(command)
       end
     end

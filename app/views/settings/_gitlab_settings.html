@@ -13,6 +13,18 @@
     </p>
 
     <p>
+        <%= content_tag(:label, l('auto_create.label')) %>
+        <%= check_box_tag('settings[auto_create]', 'yes', settings['auto_create'] == 'yes' ) %>
+        <em class="info"><%= l('auto_create.description') %></em>
+    </p>
+
+    <p>
+        <%= content_tag(:label, l('local_repositories_path.label')) %>
+        <%= text_field_tag('settings[local_repositories_path]', settings['local_repositories_path'], :size => 50) %>
+        <em class="info"><%= l('local_repositories_path.description') %></em>
+    </p>
+
+    <p>
         <%= content_tag(:label, l('git_command_prefix.label')) %>
         <%= text_field_tag('settings[git_command_prefix]', settings['git_command_prefix'], :size => 50) %>
         <em class="info"><%= l('git_command_prefix.description') %></em>

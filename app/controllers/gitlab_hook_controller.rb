@@ -88,6 +88,10 @@ class GitlabHookController < ActionController::Base
   end
 
 
+  def clone_repository(repository)
+
+  end
+
   # Gets the project identifier from the querystring parameters and if that's not supplied, assume
   # the GitLab repository name is the same as the project identifier.
   def get_identifier
@@ -115,10 +119,34 @@ class GitlabHookController < ActionController::Base
     end
 
     if repositories.nil? or repositories.length == 0
-      raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository"
+      if Setting.plugin_redmine_gitlab_hook['auto_create'] == 'yes'
+        create_repository(project)
+      else
+        raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository"
+      end
     end
 
     return repositories
   end
 
+end
+
+def create_repository(project)
+  logger.debug("Trying to create repository...")
+  if Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s == ''
+    raise TypeError, "Local repositories path is not set"
+  end
+
+  payload = JSON.parse(params[:payload] || '{}')
+  identifier = params[:project_id] || payload['repository']['name']
+  remote_url = payload['repository']['git_ssh_url']
+
+  raise TypeError, "Remote repository URL is null" if remote_url.nil?
+
+  local_root_path = Setting.plugin_redmine_gitlab_hook['local_repositories_path']
+  local_url = "#{local_root_path}/#{identifier}/"
+
+   FileUtils.mkdir_p(local_url) unless File.exists?(local_url)
+
+   payload.repository.url
 end

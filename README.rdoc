@@ -1,9 +1,9 @@
 = Redmine GitLab Hook
 
-[![Code Climate](http://img.shields.io/codeclimate/github/phlegx/redmine_gitlab_hook.svg)](https://codeclimate.com/github/phlegx/redmine_gitlab_hook)
-[![Inline Docs](http://inch-ci.org/github/phlegx/redmine_gitlab_hook.svg?branch=master)](http://inch-ci.org/github/phlegx/redmine_gitlab_hook)
-[![Dependency Status](https://gemnasium.com/phlegx/redmine_gitlab_hook.svg)](https://gemnasium.com/phlegx/redmine_gitlab_hook)
-[![License](https://img.shields.io/github/license/phlegx/redmine_gitlab_hook.svg)](http://opensource.org/licenses/MIT)
+{rdoc-image:http://img.shields.io/codeclimate/github/phlegx/redmine_gitlab_hook.svg}[https://codeclimate.com/github/phlegx/redmine_gitlab_hook]
+{rdoc-image:http://inch-ci.org/github/phlegx/redmine_gitlab_hook.svg?branch=master}[http://inch-ci.org/github/phlegx/redmine_gitlab_hook]
+{rdoc-image:https://gemnasium.com/phlegx/redmine_gitlab_hook.svg}[https://gemnasium.com/phlegx/redmine_gitlab_hook]
+{rdoc-image:https://img.shields.io/github/license/phlegx/redmine_gitlab_hook.svg}[http://opensource.org/licenses/MIT]
 
 
 This plugin allows you to update your local Git repositories in Redmine when changes have been pushed to GitLab.

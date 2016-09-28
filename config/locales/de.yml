@@ -1,6 +1,4 @@
-# English strings go here
-# Example:
-# my_label: "My label"
+# German strings go here
 de:
   git_pull_type: Git pull Typ
   all_branches:

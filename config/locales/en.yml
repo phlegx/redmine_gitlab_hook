@@ -1,9 +1,7 @@
 # English strings go here
-# Example:
-# my_label: "My label"
 en:
   git_pull_type: Git pull type
-  all_branches: 
+  all_branches:
     label: All branches
     description: 'This option fetches all branches from all remotes.'
   prune:
@@ -18,3 +16,6 @@ en:
   git_command_prefix:
     label: Git command prefix
     description: 'If you need to add some additional parameters before git command use this field. For example if you want to use GIT_SSH parameter.'
+  fetch_updates:
+    label: Fetch updates from repository
+    description: 'This option fetches updates from remote repository. Set it to "No" if repository shared (for example if Gitlab and Redmine on the same machine).'

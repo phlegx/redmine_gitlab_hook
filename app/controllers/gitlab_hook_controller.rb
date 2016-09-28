@@ -15,9 +15,14 @@ class GitlabHookController < ActionController::Base
         errors = []
         repositories.each do |repository|
           # Fetch the changes from GitLab
-          git_success = update_repository(repository)
-          unless git_success
-            errors.push(repository.identifier)
+          if Setting.plugin_redmine_gitlab_hook['fetch_updates'] == 'yes'
+            git_success = update_repository(repository)
+            unless git_success
+              errors.push(repository.identifier)
+            else
+              # Fetch the new changesets into Redmine
+              repository.fetch_changesets
+            end
           else
             # Fetch the new changesets into Redmine
             repository.fetch_changesets
@@ -98,7 +103,7 @@ class GitlabHookController < ActionController::Base
   def get_identifier
     payload = JSON.parse(params[:payload] || '{}')
     identifier = params[:project_id] || payload['repository']['name']
-    raise ActiveRecord::RecordNotFound, "Project identifier not specified" if identifier.nil?
+    raise ActiveRecord::RecordNotFound, 'Project identifier not specified' if identifier.nil?
     return identifier
   end
 
@@ -119,7 +124,7 @@ class GitlabHookController < ActionController::Base
       repo.is_a?(Repository::Git)
     end
 
-    if repositories.nil? or repositories.length == 0
+    if repositories.nil? || repositories.length == 0
       if Setting.plugin_redmine_gitlab_hook['auto_create'] == 'yes'
         create_repository(project)
       else
@@ -130,35 +135,31 @@ class GitlabHookController < ActionController::Base
     return repositories
   end
 
-end
 
-def create_repository(project)
-  logger.debug("Trying to create repository...")
-  if Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s == ''
-    raise TypeError, "Local repositories path is not set"
+  def create_repository(project)
+    logger.debug('Trying to create repository...')
+    raise TypeError, 'Local repositories path is not set' unless Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s.present?
+
+    identifier = params[:project_id] || (params['repository'] && params['repository']['name'])
+    remote_url = params[:repository] && params['repository']['git_ssh_url']
+    prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
+
+    raise TypeError, 'Remote repository URL is null' unless remote_url.present?
+
+    local_root_path = Setting.plugin_redmine_gitlab_hook['local_repositories_path']
+    local_url = File.join(local_root_path, identifier, File::SEPARATOR)
+
+    FileUtils.mkdir_p(local_url) unless File.exists?(local_url)
+
+    command = clone_repository(prefix, remote_url, local_url)
+    exec(command)
+
+    repository = Repository::Git.new
+    repository.identifier = identifier
+    repository.url = local_url
+    repository.is_default = true
+    repository.project = project
+    repository.save
   end
-
-  identifier = params[:project_id] || (params['repository'] && params['repository']['name'])
-  remote_url = params[:repository] && params['repository']['git_ssh_url']
-  prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
-
-  if (remote_url == nil or remote_url == '')
-    raise TypeError, "Remote repository URL is null"
-  end
-
-  local_root_path = Setting.plugin_redmine_gitlab_hook['local_repositories_path']
-  local_url = "#{local_root_path}/#{identifier}/"
-
-  FileUtils.mkdir_p(local_url) unless File.exists?(local_url)
-
-  command = clone_repository(prefix, remote_url, local_url)
-  exec(command)
-
-  repository = Repository::Git.new
-  repository.identifier = identifier
-  repository.url = local_url
-  repository.is_default = true
-  repository.project = project
-  repository.save
 
 end

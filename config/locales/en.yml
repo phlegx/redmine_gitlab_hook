@@ -9,3 +9,12 @@ en:
   prune:
     label: Prune
     description: 'After fetching, prune removes any remote-tracking references that no longer exist on the remote. Tags are not subject to pruning if they are fetched only because of the default tag auto-following or due to a --tags option. However, if tags are fetched due to an explicit refspec (either on the command line or in the remote configuration, for example if the remote was cloned with the --mirror option), then they are also subject to pruning.'
+  auto_create:
+    label: Auto create
+    description: 'If the repository does not exist try to initialize it.'
+  local_repositories_path:
+    label: Local repositories path
+    description: 'Path where auto-created repositories should be stored.'
+  git_command_prefix:
+    label: Git command prefix
+    description: 'If you need to add some additional parameters before git command use this field. For example if you want to use GIT_SSH parameter.'

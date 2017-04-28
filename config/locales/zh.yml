@@ -1,0 +1,21 @@
+# Simplified Chinese strings go here
+zh:
+  git_pull_type: Git pull 类型
+  all_branches:
+    label: 全部分支
+    description: '该选项用于从远端存储库中获取所有分支的更新。'
+  prune:
+    label: Prune
+    description: '获取更新后，剪除远端存储库上不再存在的任何远端跟踪引用。 如果仅在默认标记自动跟踪或使用了 --tags 选项导致获取，则标签不会被剪除。 但是，如果由于显式的refspec（在命令行或远端配置中，例如，如果远端存储库使用 --mirror 选项克隆了远端存储库文件），则获取标记也可以被剪除。'
+  auto_create:
+    label: 自动创建
+    description: '若存储库不存在则尝试初始化创建存储库。'
+  local_repositories_path:
+    label: 存储库路径
+    description: '自动创建的存储库对应的存储路径。'
+  git_command_prefix:
+    label: Git 命令前缀
+    description: '如您需要在 git 命令之前添加上一些其他参数，请使用该选项（例如：您需要使用 GIT_SSH 参数的情况下）。'
+  fetch_updates:
+    label: 从存储库中获取更新
+    description: '该选项用于从远端存储库中获取更新内容。 若存储库共享，请将其设置为“否”（例如，Gitlab 和 Redmine 在同一台设备上）。'

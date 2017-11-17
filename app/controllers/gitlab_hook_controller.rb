@@ -8,31 +8,18 @@ class GitlabHookController < ActionController::Base
 
   def index
     if request.post?
-      repositories = find_repositories
-      if repositories.empty?
-        render(:text => 'No repository configured!', :status => :not_found)
+      repository = find_repository
+      git_success = true
+      # Fetch the changes from GitLab
+      if Setting.plugin_redmine_gitlab_hook['fetch_updates'] == 'yes'
+        git_success = update_repository(repository)
+      end
+      if git_success
+        # Fetch the new changesets into Redmine
+        repository.fetch_changesets
+        render(:text => 'OK', :status => :ok)
       else
-        errors = []
-        repositories.each do |repository|
-          # Fetch the changes from GitLab
-          if Setting.plugin_redmine_gitlab_hook['fetch_updates'] == 'yes'
-            git_success = update_repository(repository)
-            unless git_success
-              errors.push(repository.identifier)
-            else
-              # Fetch the new changesets into Redmine
-              repository.fetch_changesets
-            end
-          else
-            # Fetch the new changesets into Redmine
-            repository.fetch_changesets
-          end
-        end
-        if errors.empty?
-          render(:text => 'OK', :status => :ok)
-        else
-          render(:text => "Git command failed on repository: #{errors.join(', ')}!", :status => :not_acceptable)
-        end
+        render(:text => "Git command failed on repository: #{repository.identifier}!", :status => :not_acceptable)
       end
     else
       raise ActionController::RoutingError.new('Not Found')
@@ -97,12 +84,26 @@ class GitlabHookController < ActionController::Base
     end
   end
 
+  def get_repository_name
+    return params['repository'] && params['repository']['name'].downcase
+  end
 
+  def get_repository_namespace
+    return params[:project] && params[:project][:namespace].downcase || ""
+  end
+
+  def get_repository_identifier
+    repo_namespace = get_repository_namespace
+    repo_name = get_repository_name
+    identifier = "#{repo_namespace}_#{repo_name}"
+    return identifier
+  end
+
+  # Gets the project identifier from the querystring parameters and if that's not supplied
   # Gets the project identifier from the querystring parameters and if that's not supplied, assume
   # the GitLab repository name is the same as the project identifier.
-  def get_identifier
-    payload = JSON.parse(params[:payload] || '{}')
-    identifier = params[:project_id] || payload['repository']['name']
+  def get_project_identifier
+    identifier = params[:project_id] || (params[:repository] && params[:repository][:name])
     raise ActiveRecord::RecordNotFound, 'Project identifier not specified' if identifier.nil?
     return identifier
   end
@@ -110,7 +111,7 @@ class GitlabHookController < ActionController::Base
 
   # Finds the Redmine project in the database based on the given project identifier
   def find_project
-    identifier = get_identifier
+    identifier = get_project_identifier
     project = Project.find_by_identifier(identifier.downcase)
     raise ActiveRecord::RecordNotFound, "No project found with identifier '#{identifier}'" if project.nil?
     return project
@@ -118,36 +119,41 @@ class GitlabHookController < ActionController::Base
 
 
   # Returns the Redmine Repository object we are trying to update
-  def find_repositories
+  def find_repository
     project = find_project
-    repositories = project.repositories.select do |repo|
-      repo.is_a?(Repository::Git)
-    end
+    repository_id = get_repository_identifier
+    repository = project.repositories.find_by_identifier_param(repository_id)
 
-    if repositories.nil? || repositories.length == 0
+    if repository.nil?
       if Setting.plugin_redmine_gitlab_hook['auto_create'] == 'yes'
-        create_repository(project)
+        repository = create_repository(project)
       else
         raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository"
       end
+    else
+      if not repository.is_a?(Repository::Git)
+        raise TypeError, "'#{repository_id}' is not a Git repository"
+      end
     end
 
-    return repositories
+    return repository
   end
 
 
   def create_repository(project)
     logger.debug('Trying to create repository...')
-    raise TypeError, 'Local repositories path is not set' unless Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s.present?
+    raise TypeError, 'Local repository path is not set' unless Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s.present?
 
-    identifier = params[:project_id] || (params['repository'] && params['repository']['name'])
+    identifier = get_repository_identifier
     remote_url = params[:repository] && params['repository']['git_ssh_url']
     prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
 
     raise TypeError, 'Remote repository URL is null' unless remote_url.present?
 
     local_root_path = Setting.plugin_redmine_gitlab_hook['local_repositories_path']
-    local_url = File.join(local_root_path, identifier, File::SEPARATOR)
+    repo_namespace = get_repository_namespace
+    repo_name = get_repository_name
+    local_url = File.join(local_root_path, repo_namespace, repo_name)
 
     FileUtils.mkdir_p(local_url) unless File.exists?(local_url)
 
@@ -160,6 +166,7 @@ class GitlabHookController < ActionController::Base
     repository.is_default = true
     repository.project = project
     repository.save
+    return repository
   end
 
 end

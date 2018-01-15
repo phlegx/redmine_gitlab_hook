@@ -2,7 +2,7 @@ require 'json'
 
 class GitlabHookController < ActionController::Base
 
-  GIT_BIN = Redmine::Configuration['scm_git_command'] || 'git'
+  GIT_BIN = Redmine::Configuration[:scm_git_command] || 'git'
   skip_before_filter :verify_authenticity_token, :check_if_login_required
 
 
@@ -11,7 +11,7 @@ class GitlabHookController < ActionController::Base
       repository = find_repository
       git_success = true
       # Fetch the changes from GitLab
-      if Setting.plugin_redmine_gitlab_hook['fetch_updates'] == 'yes'
+      if Setting.plugin_redmine_gitlab_hook[:fetch_updates] == 'yes'
         git_success = update_repository(repository)
       end
       if git_success
@@ -69,10 +69,10 @@ class GitlabHookController < ActionController::Base
 
   # Fetches updates from the remote repository
   def update_repository(repository)
-    Setting.plugin_redmine_gitlab_hook['prune'] == 'yes' ? prune = ' -p' : prune = ''
-    prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
+    Setting.plugin_redmine_gitlab_hook[:prune] == 'yes' ? prune = ' -p' : prune = ''
+    prefix = Setting.plugin_redmine_gitlab_hook[:git_command_prefix].to_s
 
-    if Setting.plugin_redmine_gitlab_hook['all_branches'] == 'yes'
+    if Setting.plugin_redmine_gitlab_hook[:all_branches] == 'yes'
       command = git_command(prefix, "fetch --all#{prune}", repository)
       exec(command)
     else
@@ -85,11 +85,11 @@ class GitlabHookController < ActionController::Base
   end
 
   def get_repository_name
-    return params['repository'] && params['repository']['name'].downcase
+    return params[:repository] && params[:repository][:name].downcase
   end
 
   def get_repository_namespace
-    return params[:project] && params[:project][:namespace].downcase || ""
+    return params[:project] && params[:project][:namespace].downcase || ''
   end
 
   def get_repository_identifier
@@ -125,13 +125,13 @@ class GitlabHookController < ActionController::Base
     repository = project.repositories.find_by_identifier_param(repository_id)
 
     if repository.nil?
-      if Setting.plugin_redmine_gitlab_hook['auto_create'] == 'yes'
+      if Setting.plugin_redmine_gitlab_hook[:auto_create] == 'yes'
         repository = create_repository(project)
       else
         raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository"
       end
     else
-      if not repository.is_a?(Repository::Git)
+      unless repository.is_a?(Repository::Git)
         raise TypeError, "'#{repository_id}' is not a Git repository"
       end
     end
@@ -142,24 +142,27 @@ class GitlabHookController < ActionController::Base
 
   def create_repository(project)
     logger.debug('Trying to create repository...')
-    raise TypeError, 'Local repository path is not set' unless Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s.present?
+    raise TypeError, 'Local repository path is not set' unless Setting.plugin_redmine_gitlab_hook[:local_repositories_path].to_s.present?
 
     identifier = get_repository_identifier
-    remote_url = params[:repository] && params['repository']['git_ssh_url']
-    prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
+    remote_url = params[:repository] && params[:repository][:git_ssh_url]
+    prefix = Setting.plugin_redmine_gitlab_hook[:git_command_prefix].to_s
 
     raise TypeError, 'Remote repository URL is null' unless remote_url.present?
 
-    local_root_path = Setting.plugin_redmine_gitlab_hook['local_repositories_path']
+    local_root_path = Setting.plugin_redmine_gitlab_hook[:local_repositories_path]
     repo_namespace = get_repository_namespace
     repo_name = get_repository_name
     local_url = File.join(local_root_path, repo_namespace, repo_name)
+    git_file = File.join(local_url, 'HEAD')
 
-    FileUtils.mkdir_p(local_url) unless File.exists?(local_url)
-
-    command = clone_repository(prefix, remote_url, local_url)
-    exec(command)
-
+    unless File.exists?(git_file)
+      FileUtils.mkdir_p(local_url)
+      command = clone_repository(prefix, remote_url, local_url)
+      unless exec(command)
+        raise RuntimeError, "Can't clone URL #{remote_url}"
+      end
+    end
     repository = Repository::Git.new
     repository.identifier = identifier
     repository.url = local_url

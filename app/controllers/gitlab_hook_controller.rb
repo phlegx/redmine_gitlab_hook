@@ -128,7 +128,7 @@ class GitlabHookController < ActionController::Base
       if Setting.plugin_redmine_gitlab_hook[:auto_create] == 'yes'
         repository = create_repository(project)
       else
-        raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository"
+        raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository or repository not found with identifier '#{repository_id}'"
       end
     else
       unless repository.is_a?(Repository::Git)

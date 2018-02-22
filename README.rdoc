@@ -22,7 +22,7 @@ That approach works perfectly fine, but is a bit heavy-handed and cumbersome. Th
 
 3. Restart Redmine
 
-4. In the project settings, activate "repository" module and add a new repository. Repository identifier is composed with {project_namespace}_{repository_name}. E.g. project name "test" in project namespace "business" with repository name "rails" results in "business_test_rails" as repository identifier.
+4. In the project settings, activate "repository" module and add a new repository. Repository identifier is composed with {project_namespace}_{repository_name}. E.g. project name "test" in project namespace "business" with repository name "rails" results in "business_test_rails" as repository identifier. If no project namespace is used, use only the repository name. E.g. "rails".
 
 5. GitLab
    1. Go to the repository interface on GitLab.

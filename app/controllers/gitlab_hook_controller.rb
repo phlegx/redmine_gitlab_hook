@@ -95,7 +95,7 @@ class GitlabHookController < ActionController::Base
   def get_repository_identifier
     repo_namespace = get_repository_namespace
     repo_name = get_repository_name
-    identifier = "#{repo_namespace}_#{repo_name}"
+    identifier = repo_namespace.present? ? "#{repo_namespace}_#{repo_name}" : repo_name
     return identifier
   end
 

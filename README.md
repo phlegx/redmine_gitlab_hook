@@ -1,6 +1,6 @@
 # Redmine GitLab Hook
 
-![Contributors](https://img.shields.io/github/contributors/phlegx/redmine_gitlab_hook.svg)
+[![Contributors](https://img.shields.io/github/contributors/phlegx/redmine_gitlab_hook.svg)](https://github.com/phlegx/redmine_gitlab_hook/graphs/contributors)
 [![Release](https://img.shields.io/github/release/phlegx/redmine_gitlab_hook.svg)](https://github.com/phlegx/redmine_gitlab_hook/releases)
 [![Issues](https://img.shields.io/github/issues/phlegx/redmine_gitlab_hook.svg)](https://github.com/phlegx/redmine_gitlab_hook/issues)
 [![License](https://img.shields.io/github/license/phlegx/redmine_gitlab_hook.svg)](http://opensource.org/licenses/MIT)

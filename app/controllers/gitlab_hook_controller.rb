@@ -9,17 +9,20 @@ class GitlabHookController < ActionController::Base
   def index
     if request.post?
       repository = find_repository
+      p repository.inspect
       git_success = true
-      # Fetch the changes from GitLab
-      if Setting.plugin_redmine_gitlab_hook['fetch_updates'] == 'yes'
-        git_success = update_repository(repository)
-      end
-      if git_success
-        # Fetch the new changesets into Redmine
-        repository.fetch_changesets
-        render(:text => 'OK', :status => :ok)
-      else
-        render(:text => "Git command failed on repository: #{repository.identifier}!", :status => :not_acceptable)
+      if repository
+        # Fetch the changes from GitLab
+        if Setting.plugin_redmine_gitlab_hook['fetch_updates'] == 'yes'
+          git_success = update_repository(repository)
+        end
+        if git_success
+          # Fetch the new changesets into Redmine
+          repository.fetch_changesets
+          render(:text => 'OK', :status => :ok)
+        else
+          render(:text => "Git command failed on repository: #{repository.identifier}!", :status => :not_acceptable)
+        end
       end
     else
       raise ActionController::RoutingError.new('Not Found')
@@ -84,26 +87,30 @@ class GitlabHookController < ActionController::Base
     end
   end
 
+
   def get_repository_name
-    return params[:repository] && params[:repository][:name].downcase
+    return params[:repository_name] && params[:repository_name].downcase
   end
+
 
   def get_repository_namespace
-    return params[:project] && params[:project][:namespace].downcase || ''
+    return params[:repository_namespace] && params[:repository_namespace].downcase
   end
 
+
+  # Gets the repository identifier from the querystring parameters and if that's not supplied, assume
+  # the GitLab project identifier is the same as the repository identifier.
   def get_repository_identifier
     repo_namespace = get_repository_namespace
-    repo_name = get_repository_name
+    repo_name = get_repository_name || get_project_identifier
     identifier = repo_namespace.present? ? "#{repo_namespace}_#{repo_name}" : repo_name
     return identifier
   end
 
-  # Gets the project identifier from the querystring parameters and if that's not supplied
   # Gets the project identifier from the querystring parameters and if that's not supplied, assume
-  # the GitLab repository name is the same as the project identifier.
+  # the GitLab repository identifier is the same as the project identifier.
   def get_project_identifier
-    identifier = params[:project_id] || (params[:repository] && params[:repository][:name])
+    identifier = params[:project_id] || params[:repository_name]
     raise ActiveRecord::RecordNotFound, 'Project identifier not specified' if identifier.nil?
     return identifier
   end
@@ -145,7 +152,7 @@ class GitlabHookController < ActionController::Base
     raise TypeError, 'Local repository path is not set' unless Setting.plugin_redmine_gitlab_hook['local_repositories_path'].to_s.present?
 
     identifier = get_repository_identifier
-    remote_url = params[:repository] && params[:repository][:git_ssh_url]
+    remote_url = params[:repository_git_url]
     prefix = Setting.plugin_redmine_gitlab_hook['git_command_prefix'].to_s
 
     raise TypeError, 'Remote repository URL is null' unless remote_url.present?

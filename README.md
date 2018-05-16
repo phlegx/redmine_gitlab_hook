@@ -39,7 +39,7 @@ That approach works perfectly fine, but is a bit heavy-handed and cumbersome. Th
    2. Restart Redmine instance.
 4. **Setup Redmine repository**
    * In the project settings, activate `repository` module and add a new repository. Repository identifier is composed with `{repository_namespace}_{repository_name}`. 
-   * E.g. project identifier `test` in repository namespace `business` with repository name `redmine` results in `business_redmine` as repository identifier.
+   * Project identifier `test` in repository namespace `business` with repository name `redmine` results in `business_redmine` as repository identifier.
    * If no repository namespace is used, use only the repository name as repository identifier. E.g. `redmine`.
    * If no repository name is given, the repository identifier is the same as the project identifier. E.g. `test`.
    * If no project identifier is given, the project identifier is the same as the repository name. E.g. `redmine`.

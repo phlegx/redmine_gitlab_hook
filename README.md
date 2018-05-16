@@ -57,7 +57,7 @@ That approach works perfectly fine, but is a bit heavy-handed and cumbersome. Th
 
    **Example:**
 
-   [(https://redmine.example.com/gitlab_hook?key=j2g7kds9341hj6sdk&project_id=test&repository_name=redmine&repository_namespace=business)](https://redmine.example.com/gitlab_hook?key=j2g7kds9341hj6sdk&project_id=test&repository_name=redmine&repository_namespace=business)
+   [https://redmine.example.com/gitlab_hook?key=j2g7kds9341hj6sdk&project_id=test&repository_name=redmine&repository_namespace=business](https://redmine.example.com/gitlab_hook?key=j2g7kds9341hj6sdk&project_id=test&repository_name=redmine&repository_namespace=business)
 
 That's it. GitLab will now send a HTTP POST to the Redmine GitLab Hook plugin whenever changes are pushed to GitLab. The plugin then takes care of pulling the changes to the local repository and updating the Redmine database with them.
 

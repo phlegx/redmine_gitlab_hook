@@ -1,12 +1,27 @@
 require 'json'
 
-class GitlabHookController < ActionController::Base
+class GitlabHookController < ApplicationController
 
   GIT_BIN = Redmine::Configuration[:scm_git_command] || 'git'
-  #skip_before_filter :verify_authenticity_token, :check_if_login_required
+  skip_before_action :verify_authenticity_token, :check_if_login_required
 
 
   def index
+    if params[:key].present?
+      key = params[:key].to_s
+    elsif request.headers["X-Redmine-API-Key"].present?
+      key = request.headers["X-Redmine-API-Key"].to_s
+    end
+    logger.info("check key:" + key)
+    user = User.find_by_api_key(key)
+    logger.info("check key, current user: " + (User.current.logged? ? "#{User.current.login} (id=#{User.current.id})" : "anonymous")) if logger
+    logger.info(user)
+    if (!user)
+      logger.info("unauthorize, not find user, key: " + key)
+      render(:plain=> 'unauthorize', :status => 403)
+      return false
+    end
+    
     if request.post?
       repository = find_repository
       p repository.inspect

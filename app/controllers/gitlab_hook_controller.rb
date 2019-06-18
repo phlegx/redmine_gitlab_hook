@@ -60,7 +60,7 @@ class GitlabHookController < SysController
 
 
   def git_command(prefix, command, repository)
-    "#{prefix} " + GIT_BIN + " --git-dir='#{repository.url}' #{command}"
+    "#{prefix} " + GIT_BIN + " --git-dir=\"#{repository.url}\" #{command}"
   end
 
 

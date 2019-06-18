@@ -18,9 +18,9 @@ class GitlabHookController < SysController
         if git_success
           # Fetch the new changesets into Redmine
           repository.fetch_changesets
-          render(:text => 'OK', :status => :ok)
+          render(:plain => 'OK', :status => :ok)
         else
-          render(:text => "Git command failed on repository: #{repository.identifier}!", :status => :not_acceptable)
+          render(:plain => "Git command failed on repository: #{repository.identifier}!", :status => :not_acceptable)
         end
       end
     else

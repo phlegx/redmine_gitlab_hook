@@ -69,7 +69,7 @@ Please keep in mind, that the request method must be of type **POST**!
 ## Assumptions
 
 * GitLab >= 5.x.
-* Redmine 2.x running on a *nix-like system. Older versions of redmine will not work.
+* Redmine 3.x running on a *nix-like system. Older versions of Redmine will not work.
 * Git 1.7.10 or higher available on the commandline. Also supports Git 1.8 repositories which are mirrored with the new `clone --mirror` command (default: off, please turn on in options when new mirror command was used).
 
 ## Contributing
@@ -84,4 +84,4 @@ Please keep in mind, that the request method must be of type **POST**!
 
 The MIT License
 
-Copyright (c) 2018 Phlegx Systems OG
+Copyright (c) 2019 Phlegx Systems OG

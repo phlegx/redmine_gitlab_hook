@@ -84,4 +84,4 @@ Please keep in mind, that the request method must be of type **POST**!
 
 The MIT License
 
-Copyright (c) 2019 Phlegx Systems OG
+Copyright (c) 2022 Phlegx Systems Technologies GmbH
